@@ -1,4 +1,4 @@
-/** Routes for users of companies. */
+/** Routes for companies. */
 
 const express = require("express");
 const ExpressError = require("../expressError")
