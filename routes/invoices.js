@@ -43,7 +43,7 @@ router.post('/', async (req, res, next) => {
 })
 
 // PUT /invoices/[id] : Updates an invoice.
-router.patch('/:id', async (req, res, next) => {
+router.put('/:id', async (req, res, next) => {
     try {
         const { id } = req.params;
         const { amt } = req.body;
