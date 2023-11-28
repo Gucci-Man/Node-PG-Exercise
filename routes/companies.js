@@ -18,14 +18,28 @@ router.get('/', async (req, res, next) => {
   })
 
 // GET /companies/[code] : Return obj of company:
+// Also see names of industries for that company
 router.get('/:code', async (req, res, next) => {
     try {
+        let industries = [] // if a company has no industries, then start out as empty array
         const { code } = req.params;
         const results = await db.query('SELECT * FROM companies WHERE code = $1', [code]);
         if (results.rows.length === 0) {
             throw new ExpressError(`Can't find company with code of ${code}`, 404)
         }
-        return res.json({ company: results.rows[0] })
+
+        // Querying company's industries
+        const industry_results = await db.query(`SELECT i.industry
+        FROM companies AS c
+        LEFT JOIN company_industry AS ci
+        ON c.code = ci.company_code
+        LEFT JOIN industries AS i
+        ON i.code = ci.industry_code
+        WHERE c.code = $1`, [code]);
+
+        industries = industry_results.rows.map(r => r.industry)
+        return res.json({ company: results.rows[0],
+         industries: industries});
     } catch (e) {
         return next(e);
     }

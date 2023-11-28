@@ -49,4 +49,5 @@ INSERT INTO industries
 
 INSERT INTO company_industry
   VALUES ('eng', 'ibm'),
-         ('comp', 'apple');
+         ('comp', 'apple'),
+         ('eng', 'apple');
