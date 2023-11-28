@@ -43,14 +43,31 @@ router.post('/', async (req, res, next) => {
 })
 
 // PUT /invoices/[id] : Updates an invoice.
+// Allow paying of invoices
 router.put('/:id', async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { amt } = req.body;
-        const results = await db.query('UPDATE invoices SET amt=$1 WHERE id=$2 RETURNING id, comp_code, amt, paid, add_date, paid_date', [amt, id])
-        if (results.rows.length === 0) {
+        const { amt, paid } = req.body;
+        let paidDate = null;
+
+        const checkPaid = await db.query('SELECT * FROM invoices WHERE id=$1', [id]);
+        if (checkPaid.rows.length === 0) {
             throw new ExpressError(`Can't update invoice with id of ${id}`, 404)
         }
+
+        const currPaidDate = checkPaid.rows[0].paid_date; // Save current paid date if there is one
+
+        if(!currPaidDate && paid) {
+            paidDate = new Date();
+        } else if(!paid) {
+            paidDate = null;
+        } else {
+            paidDate = currPaidDate;
+        }
+
+        const results = await db.query('UPDATE invoices SET amt=$1, paid=$2, paid_date=$3 WHERE id=$4 RETURNING id, comp_code, amt, paid, add_date, paid_date', 
+        [amt, paid, paidDate, id]);
+        
         return res.send({ invoice: results.rows[0] })
         } catch (e) {
         return next(e)
