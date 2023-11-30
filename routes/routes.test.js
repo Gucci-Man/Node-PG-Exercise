@@ -34,7 +34,7 @@ afterAll(async () => {
   await db.end()
 })
 
-/************** Testing company routes **************/
+/************** Testing Company Routes **************/
 
 describe("GET /companies", () => {
     test("Get a list with one company", async () => {
@@ -88,7 +88,7 @@ describe("DELETE /companies/:code", () => {
     })
   })
 
-/************** Testing invoice routes **************/
+/************** Testing Invoice Routes **************/
 
 describe("GET /invoices", () => {
     test("Get a list with one invoice", async () => {
