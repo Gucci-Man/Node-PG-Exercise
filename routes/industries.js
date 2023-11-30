@@ -17,7 +17,6 @@ router.get('/', async (req, res, next) => {
         
         // Iterate through each industry to find the corresponding company codes
         for (let i of industry_arr) {
-            console.log(`Industry code is ${i}`);
             const company_results = await db.query(`SELECT c.code
             FROM companies AS c
             JOIN company_industry AS ci
