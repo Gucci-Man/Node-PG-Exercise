@@ -8,6 +8,7 @@ const db = require('../db');
 let testCompany;
 let testInvoice;
 let testIndustry;
+
 beforeEach(async () => {
   const company_result = await db.query(`INSERT INTO companies (code, name, description) 
   VALUES ('abc', 'ABC Studios', 'Broadcast Station') 
@@ -32,6 +33,8 @@ afterEach(async () => {
 afterAll(async () => {
   await db.end()
 })
+
+/************** Testing company routes **************/
 
 describe("GET /companies", () => {
     test("Get a list with one company", async () => {
@@ -77,7 +80,7 @@ describe("PUT /companies/:code", () => {
     })
   })
 
-  describe("DELETE /companies/:code", () => {
+describe("DELETE /companies/:code", () => {
     test("Deletes a single company", async () => {
       const res = await request(app).delete(`/companies/${testCompany.code}`);
       expect(res.statusCode).toBe(200);
@@ -85,3 +88,52 @@ describe("PUT /companies/:code", () => {
     })
   })
 
+/************** Testing invoice routes **************/
+
+describe("GET /invoices", () => {
+    test("Get a list with one invoice", async () => {
+      const res = await request(app).get('/invoices')
+      expect(res.statusCode).toBe(200);
+      expect(res.body.invoices[0].comp_code).toEqual( testInvoice.comp_code )
+    })
+  })
+
+describe("GET /invoices/:id", () => {
+    test("Get a single invoice", async () => {
+        const res = await request(app).get(`/invoices/${testInvoice.id}`)
+        expect(res.statusCode).toBe(200);
+        expect(res.body.invoice.comp_code).toEqual( testInvoice.comp_code )
+    })
+    test("Responds with 404 for invalid invoice id", async() => {
+        const res = await request(app).get(`/invoices/0`)
+        expect(res.statusCode).toBe(404);
+    })
+  })
+
+describe("POST /invoices", () => {
+    test("Creates a single invoice", async () => {
+        const res = await request(app).post('/invoices').send({ comp_code: 'abc', amt: 90 });
+        expect(res.statusCode).toBe(201);
+        expect(res.body.invoice.amt).toEqual(90)
+    })
+  })
+
+describe("PUT /invoices/:id", () => {
+    test("Updates an invoice", async () => {
+        const res = await request(app).put(`/invoices/${testInvoice.id}`).send({ amt: 90, paid: true });
+        expect(res.statusCode).toBe(200);
+        expect(res.body.invoice.paid).toBe(true)
+    })
+    test("Responds with 404 for invalid invoice id", async() => {
+        const res = await request(app).put(`/invoices/0`).send({ amt: 90, paid: true });
+        expect(res.statusCode).toBe(404);
+    })
+  })
+
+describe("DELETE /invoices/:id", () => {
+    test("Deletes a single invoice", async () => {
+        const res = await request(app).delete(`/invoices/${testInvoice.id}`);
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toEqual({ status: 'deleted' })
+    })
+  })
